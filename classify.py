@@ -29,9 +29,11 @@ from contextlib import redirect_stdout
 #resize images
 
 #Get a list of the image filenames
-filenames = glob.glob('C:/kaggle.data/dog.breeds/Data/resize/train/*.jpg',recursive = True)
+#filenames = glob.glob('C:/kaggle.data/dog.breeds/Data/resize/train/*.jpg',recursive = True)
+filenames = glob.glob('/Users/Shegocaga/Documents/Official Dataset/train/*.jpg',recursive = True)
 
-image_types = os.listdir('Images/resize/')
+#image_types = os.listdir('Images/resize/')
+image_types = os.listdir('/Users/Shegocaga/Documents/Official Dataset/Images/resize/')
 
 for file in range (len(filenames)):
     resize_image = resizeimage.resize_cover(Image.open(filenames[file]), [100,100])
@@ -62,7 +64,8 @@ def evaluate_model(model, x_test, y_test):
 #Prepare the data 
 
 #Get a list of the image filenames
-filenames = glob.glob('C:/kaggle.data/dog.breeds/Data/resize/train/*.jpg',recursive = True)
+#filenames = glob.glob('C:/kaggle.data/dog.breeds/Data/resize/train/*.jpg',recursive = True)
+filenames = glob.glob('/Users/Shegocaga/Documents/Official Dataset/train/*.jpg',recursive = True)
 
 x = np.array([np.array(plt.imread(filename)) for filename in filenames])
 #reshape image array in the tensorflow format
@@ -70,7 +73,8 @@ x = np.reshape(x,[x.shape[0],x.shape[1],x.shape[2],x.shape[3]])
 
 
 
-y = pd.read_csv('C:\kaggle.data\dog.breeds\Data\labels.csv', sep = ',')
+#y = pd.read_csv('C:\kaggle.data\dog.breeds\Data\labels.csv', sep = ',')
+y = pd.read_csv('/Users/Shegocaga/Documents/Official Dataset/labels.csv', sep = ',')
 
 breeds = sorted(list(set(y['breed'].values)))
 b2id = dict((b,i) for i,b in enumerate(breeds))
@@ -208,6 +212,24 @@ print("Analysis Time: " + str(round(finish_time-start_time,3)) + " seconds")
 
 acc_test, cf_result = evaluate_model(model,x_test,y_test)
 acc_train, cf_result = evaluate_model(model,x_train,y_train)
+
+###############################################################
+# Load Steve's model
+tf.reset_default_graph()
+model = alexnet()
+model.load('alexnet.model')
+
+guess = 50
+
+Keral = x[guess,:,:,:]
+Carel = np.reshape(Keral,[1,100,100,3])
+result = model.predict(Carel)
+probability = [np.max(result)]
+i,j = np.where(result == probability)
+j = j[0]
+y[guess,j]
+
+
 
 ###############################################################
 # #parameter search for optimal response
