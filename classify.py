@@ -1,7 +1,7 @@
 
 import tflearn
 from tflearn.layers.core import input_data, dropout, fully_connected
-from tflearn.layers.conv import conv_2d, max_pool_2d
+from tflearn.layers.conv import conv_2d, max_pool_2d, avg_pool_2d
 from tflearn.layers.estimator import regression
 from tflearn.metrics import Accuracy
 from tflearn.layers.normalization import batch_normalization 
@@ -21,7 +21,6 @@ from keras.utils import to_categorical # to convert to one-hot encodings
 from PIL import Image
 from resizeimage import resizeimage
 
-from extract_accuracy import compute_accuracy_metrics
 import io
 import time
 from contextlib import redirect_stdout
@@ -129,6 +128,61 @@ def build_model(amt_filters,filter_size,stride):
     return model
 
 #########################################################
+#The Model
+
+def alexnet():
+
+    acc = Accuracy()
+
+	#Start with a layer that inputs the image data
+    #network = input_data(shape=[None, 480,640, 3], data_augmentation = img_aug )
+    network = input_data(shape=[None, 100,100, 3] )
+
+    #Add Convolutional Layer to expand the feature space
+    network = conv_2d(network, nb_filter = 96, filter_size = 11, strides = 4, activation='relu', name = 'conv_1')
+    #Add a pooling layer to reduce the feature space 
+    network = max_pool_2d(network, kernel_size = 3, strides=2, name = 'max_1')
+
+    #Add Convolutional Layer to expand the feature space
+    network = conv_2d(network, nb_filter = 256, filter_size = 5, strides = 4, activation='relu', name = 'conv_2')
+    #Add a pooling layer to reduce the feature space 
+    network = max_pool_2d(network, kernel_size = 3, strides=2, name = 'max_2')
+
+    #Add Convolutional Layer to expand the feature space
+    network = conv_2d(network, nb_filter = 384, filter_size = 3, strides = 1, activation='relu', name = 'conv_2')
+
+    #Add Convolutional Layer to expand the feature space
+    network = conv_2d(network, nb_filter = 384, filter_size = 3, strides = 1, activation='relu', name = 'conv_2')
+
+    #Add Convolutional Layer to expand the feature space
+    network = conv_2d(network, nb_filter = 256, filter_size = 3, strides = 1, activation='relu', name = 'conv_2')
+
+    # Add a fully connected layer  
+    network = fully_connected(network, 960, activation='elu')
+
+    # Add a fully connected layer  
+    network = fully_connected(network, 480, activation='elu')
+    
+    
+    # Add a fully connected layer  
+    network = fully_connected(network, 240, activation='elu')
+    
+    # add a Dropout layer
+#    network = dropout(network, 0.5)
+#    # Fully Connected Layer
+    network = fully_connected(network, 120, activation='softmax')
+    # Final network
+    network = regression(network, optimizer='adam',
+    loss='categorical_crossentropy',
+    learning_rate=0.001, metric=acc)
+
+
+    # The model with details on where to save
+    model = tflearn.DNN(network,tensorboard_verbose=0 )
+
+    return model
+
+#########################################################
 #Fit the Model 
 
 filter_number =  6
@@ -143,9 +197,10 @@ x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=.10)
 tf.reset_default_graph()
 #build the model
 start_time = time.clock()
-model = build_model(filter_number, filter_size, strides)
+#model = build_model(filter_number, filter_size, strides)
+model = alexnet()
 #fit the model
-model.fit(x_train,y_train,n_epoch=epoch_number, show_metric=True)
+model.fit(x_train,y_train, validation_set = [x_test, y_test], n_epoch=epoch_number, show_metric=True)
 
 
 finish_time = time.clock()
