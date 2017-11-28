@@ -60,9 +60,12 @@ img_width, img_height = 150, 150
 # train_data_dir = '/Users/Shegocaga/Documents/Official Dataset/train'
 
 ### Cats vs Dogs: base tutorial goal ###
-train_data_dir = '/Users/Shegocaga/Documents/code/convnets-keras/data/train'
+# train_data_dir = '/Users/Shegocaga/Documents/code/convnets-keras/data/train'
+train_data_dir      = '/Users/Shegocaga/Documents/code/Official Dataset/train'
 
-validation_data_dir = '/Users/Shegocaga/Documents/code/convnets-keras/data/validate'
+# validation_data_dir = '/Users/Shegocaga/Documents/code/convnets-keras/data/validate'
+validation_data_dir = '/Users/Shegocaga/Documents/code/Official Dataset/test'
+
 nb_train_samples = 2000
 nb_validation_samples = 800
 epochs = 50
